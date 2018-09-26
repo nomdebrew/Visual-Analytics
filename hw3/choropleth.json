@@ -1,1 +1,64 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v4.json",
+  "width": 960,
+  "height": 500,
+  "autosize": "none",
+
+  "data": [
+    {
+      "name": "unemp",
+      "url": "https://raw.githubusercontent.com/nomdebrew/Visual-Analytics/master/hw3/losses2015_transformed_states.csv",
+      "format": {"type": "csv", "parse": "auto"}
+    },
+    {
+      "name": "states",
+      "url": "https://raw.githubusercontent.com/nomdebrew/Visual-Analytics/master/hw3/us-10m.json",
+      "format": {"type": "topojson", "feature": "states"},
+      "transform": [
+        { "type": "lookup", "from": "unemp", "key": "id", "fields": ["id"], "values": ["rate"] },
+        { "type": "filter", "expr": "datum.rate != null" }
+      ]
+    }
+  ],
+
+  "projections": [
+    {
+      "name": "projection",
+      "type": "albersUsa"
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "quantize",
+      "domain": [0, 0.15],
+      "range": {"scheme": "blues", "count": 7}
+    }
+  ],
+
+  "legends": [
+    {
+      "fill": "color",
+      "orient": "bottom-right",
+      "title": "Losses",
+      "format": "0.1%"
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "shape",
+      "from": {"data": "states"},
+      "encode": {
+        "enter": { "tooltip": {"signal": "format(datum.rate, '0.1%')"}},
+        "update": { "fill": {"scale": "color", "field": "rate"} },
+        "hover": { "fill": {"value": "red"} }
+      },
+      "transform": [
+        { "type": "geoshape", "projection": "projection" }
+      ]
+    }
+  ]
+}
 
